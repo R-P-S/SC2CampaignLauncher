@@ -30,7 +30,7 @@ jobs:
           --onefile ^
           --icon "assets/app.ico" ^
           --add-data "assets;assets" ^
-          src\\SC2CampaignLauncher.py
+          src\SC2CampaignLauncher.py
 
     - name: Generate SHA-256
       shell: pwsh
