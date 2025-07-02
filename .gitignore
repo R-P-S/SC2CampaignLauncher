@@ -1,8 +1,1 @@
-*.pyd
-*.dll
-*.txt
-*.ico
-*.png
-*.pem
-*.py
-*.exe
+*src

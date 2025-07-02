@@ -1,0 +1,50 @@
+# .github/workflows/release-launcher.yml
+name: Build & Upload Launcher
+
+on:
+  push:
+    tags: ['v*']        # e.g. v0.2.0
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install build deps
+      run: pip install pyinstaller beautifulsoup4 requests
+
+    - name: PyInstaller one-file build
+      shell: cmd
+      run: |
+        pyinstaller ^
+          --noconsole ^
+          --onefile ^
+          --icon "assets/app.ico" ^
+          --add-data "assets;assets" ^
+          src\\SC2CampaignLauncher.py
+
+    - name: Generate SHA-256
+      shell: pwsh
+      run: |
+        $hash = (Get-FileHash "dist/SC2CampaignLauncher.exe" -Algorithm SHA256).Hash.ToLower()
+        $hash | Out-File -Encoding ascii -NoNewline "dist/SC2CampaignLauncher.exe.sha256"
+        Write-Host "SHA256=$hash"
+
+    - uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: SC2 Campaign Launcher ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        files: |
+          dist/SC2CampaignLauncher.exe
+          dist/SC2CampaignLauncher.exe.sha256
